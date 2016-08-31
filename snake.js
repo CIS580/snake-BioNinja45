@@ -14,7 +14,7 @@ var oldTime = performance.now();
  */
 function loop(newTime) {
   var elapsedTime = newTime - oldTime;
-
+  oldTime = newTime;
   update(elapsedTime);
   render(elapsedTime);
 
@@ -34,7 +34,8 @@ function loop(newTime) {
  * the number of milliseconds passed since the last frame.
  */
 function update(elapsedTime) {
-
+	//multiply snake speed by elapsedtime to have same speed across refresh rates
+	
   // TODO: Spawn an apple periodically
   // TODO: Grow the snake periodically
   // TODO: Move the snake
