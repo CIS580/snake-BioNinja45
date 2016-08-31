@@ -58,6 +58,11 @@ function update(elapsedTime) {
   //	|_____|
   // Not in collision = (Abot > Btop || Atop > Bbot || Aleft > Bright || Aright > Bleft)
   // In collision = !(Abot > Btop || Atop > Bbot || Aleft > Bright || Aright > Bleft)
+  
+  //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+  //var arr = []
+  //var arr = new Array();
+  //var arr = [{(xpos:0,ypos:5,radius:3)}]
 }
 
 /**
