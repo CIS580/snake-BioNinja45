@@ -43,7 +43,21 @@ function update(elapsedTime) {
   // TODO: Determine if the snake has eaten an apple
   // TODO: Determine if the snake has eaten its tail
   // TODO: [Extra Credit] Determine if the snake has run into an obstacle
-
+  
+  //Distance formula: d^2 = (x1-x2)^2 + (y1-y2)^2
+  //d^2 >=< (r1+r2)^2
+  // > is overlap, = is intersect, < is no collision
+  
+  //Check to see if a box is in collision with another box
+  //
+  // _____ 
+  //|     |
+  //|  A _|___
+  //|___|_|   |
+  //    |  B  |
+  //	|_____|
+  // Not in collision = (Abot > Btop || Atop > Bbot || Aleft > Bright || Aright > Bleft)
+  // In collision = !(Abot > Btop || Atop > Bbot || Aleft > Bright || Aright > Bleft)
 }
 
 /**
