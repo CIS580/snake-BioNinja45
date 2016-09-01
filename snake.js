@@ -14,6 +14,10 @@ var firstHead = [];
 firstHead.push(0);
 firstHead.push(0);
 snake.push(firstHead);
+var lastSnakePosition = [];
+lastSnakePosition[0] =firstHead;
+var lastSnakePositionX= 0;
+var lastSnakePositionY = 0;
 
 var input = {
 	up:false,
@@ -57,7 +61,7 @@ function update(elapsedTime) {
 	var snakeSpeed = speed * elapsedTime;
 	
 	
-	if(time%150== 0){
+	if(time%50== 0){
 		var height = Math.floor((Math.random() * backBuffer.height) + 1);
 		var width = Math.floor((Math.random() * backBuffer.width) + 1);
 		appleLocations.push([height,width]);
@@ -66,39 +70,41 @@ function update(elapsedTime) {
 	
   
   // TODO: Grow the snake periodically
-	console.log(snakeSpeed);
+	
+	
   // TODO: Move the snake
   snake.forEach(function(snakeSegment,index,array){
 	if(input.up)snakeSegment[1]-=snakeSpeed;
 	if(input.down)snakeSegment[1]+=snakeSpeed;
 	if(input.left)snakeSegment[0]-=snakeSpeed;
 	if(input.right)snakeSegment[0]+=snakeSpeed;
-	console.log(snakeSegment[0]);
-	console.log(snakeSegment[1]);
 	
+	// TODO: Determine if the snake has eaten an apple
 	appleLocations.forEach(function(item,index,array){
 	var d2 = Math.pow(parseInt(item[0])-snakeSegment[0],2) + Math.pow(parseInt(item[1])-snakeSegment[1],2);
 	if(d2<=Math.pow(10+5,2))
 	{
 		addSnakeSegment = [];
-		addSnakeSegment.push(parseInt(item[0]));
-		addSnakeSegment.push(parseInt(item[1]));
+		addSnakeSegment.push(parseInt(lastSnakePositionX));
+		addSnakeSegment.push(parseInt(lastSnakePositionY));
 		snake.push(addSnakeSegment);
 		appleLocations.splice(index,1);
+		console.log(lastSnakePosition[0][0] + " " + lastSnakePosition[0][1]);
+		console.log(snakeSegment[0] + " " + snakeSegment[1]);
 		
 	}
 	});
   });
 	
   // TODO: Determine if the snake has moved out-of-bounds (offscreen)
-  // TODO: Determine if the snake has eaten an apple
+  
 	
   // TODO: Determine if the snake has eaten its tail
   // TODO: [Extra Credit] Determine if the snake has run into an obstacle
   
   //Distance formula: d^2 = (x1-x2)^2 + (y1-y2)^2
-  //d^2 >=< (r1+r2)^2
-  // > is overlap, = is intersect, < is no collision
+  //d^2 <=> (r1+r2)^2
+  // < is overlap, = is intersect, > is no collision
   
   //Check to see if a box is in collision with another box
   //
@@ -115,6 +121,16 @@ function update(elapsedTime) {
   //var arr = []
   //var arr = new Array();
   //var arr = [{(xpos:0,ypos:5,radius:3)}]
+  if(time%2==0)
+  {
+	  var snakeHead = snake[0];
+	  
+	  lastSnakePosition[0] = snakeHead;
+	  lastSnakePositionX=snakeHead[0];
+	  lastSnakePositionY=snakeHead[1];
+	  console.log(lastSnakePosition[0][0]);
+	  console.log(lastSnakePosition[0][1]);
+  }
 }
 
 /**
@@ -133,7 +149,7 @@ function render(elapsedTime) {
 	// TODO: Draw the game objects into the backBuffer
 	backCtx.fillStyle = "#FF0000";
 	snake.forEach(function(snakeSegment,index,array){
-	backCtx.fillRect(snakeSegment[0],snakeSegment[1],10,10);
+		backCtx.fillRect(snakeSegment[0],snakeSegment[1],10,10);
 	
 	});
 }
