@@ -6,7 +6,7 @@ backBuffer.width = frontBuffer.width;
 backBuffer.height = frontBuffer.height;
 var backCtx = backBuffer.getContext('2d');
 var oldTime = performance.now();
-var speed = 1/5;
+var speed = 1/4;
 var appleLocations = [];
 var time = 625;
 var snake = [];
@@ -20,12 +20,19 @@ var lastSnakePositionX= 0;
 var lastSnakePositionY = 0;
 var applesEaten = 0;
 var gameOver = false;
+var obstacle = [];
+var obstacleHeight = 150;
+var obstacleWidth = 150;
+obstacle.push(obstacleHeight);
+obstacle.push(obstacleWidth);
+var obstacleLocations = [];
+obstacleLocations.push(obstacle);
 
 var input = {
 	up:false,
 	down:false,
 	left:false,
-	right:false
+	right:true
 }
 
 /**
@@ -78,8 +85,12 @@ function update(elapsedTime) {
 		appleLocations.push([height,width]);
 	}
 	
-	if(input.up||input.down||input.left||input.right){
+	//if(input.up||input.down||input.left||input.right){
 		for(i=0;i<snake.length;i++){
+			
+			if(gameOver){continue;}
+			
+			
 			var snakeSegment = snake[i];
 			// TODO: Move the snake
 			if(i==0){
@@ -92,46 +103,60 @@ function update(elapsedTime) {
 			else
 			{
 				snake[i] = lastSnakePosition[lastSnakePosition.length-i];
-				console.log(lastSnakePosition[lastSnakePosition.length-i][0] + " " + lastSnakePosition[lastSnakePosition.length-i][1])
-				console.log(i);
+				//console.log(lastSnakePosition[lastSnakePosition.length-i][0] + " " + lastSnakePosition[lastSnakePosition.length-i][1])
+				//console.log(i);
 			}
 			// TODO: Determine if the snake has eaten an apple
 			appleLocations.forEach(function(item,index,array){
 				var d2 = Math.pow(parseInt(item[0])-snakeSegment[0],2) + Math.pow(parseInt(item[1])-snakeSegment[1],2);
-				if(d2<=Math.pow(10+5,2))
+				if(d2<=Math.pow(9,2))
 				{
 					addSnakeSegment = [];
 					addSnakeSegment.push(parseInt(lastSnakePositionX));
 					addSnakeSegment.push(parseInt(lastSnakePositionY));
 					snake.push(addSnakeSegment);
 					appleLocations.splice(index,1);
-					console.log(lastSnakePosition[0][0] + " " + lastSnakePosition[0][1]);
-					console.log(snakeSegment[0] + " " + snakeSegment[1]);
-					console.log(snake.length);
-					console.log(lastSnakePosition.length);
+					//console.log(lastSnakePosition[0][0] + " " + lastSnakePosition[0][1]);
+					//console.log(snakeSegment[0] + " " + snakeSegment[1]);
+					//console.log(snake.length);
+					//console.log(lastSnakePosition.length);
 				}
 			});
 			
 			// TODO: Determine if the snake has moved out-of-bounds (offscreen)
-			if(snake[0][0] > backBuffer.width-12 || snake[0][0] < 2 || snake[0][1] > backBuffer.height-12 || snake[0][1] < 2){
-				gameOver = true;
+			if(snake[0][0] > backBuffer.width-10 || snake[0][0] < 0 || snake[0][1] > backBuffer.height-10 || snake[0][1] < 0){
+				GameOver();
+				return;
 			}
 			// TODO: Determine if the snake has eaten its tail
-			if(i<5){continue;}
+			if(i<3){continue;}
 			var d2 = Math.pow(snake[0][0]-snake[i][0],2)+ Math.pow(snake[0][1]-snake[i][1],2);
-			if(d2<=Math.pow(15,2))
+			if(d2<=Math.pow(12,2))
 			{
-				gameOver = true;
+				GameOver();
+				return;
 			}
+			
+			
 				
 		}
-	}
+		// TODO: [Extra Credit] Determine if the snake has run into an obstacle
+			obstacleLocations.forEach(function(item,index,array){
+				//console.log("hi");
+				var d2 = Math.pow(snake[0][0]-item[0]+5,2) + Math.pow(snake[0][1]-item[1]+5,2);
+				//console.log(item[0] + " " + item[1]);
+				//console.log(snake[0][0] + " " + snake[0][1]);
+				//console.log(d2);
+				if(d2<=Math.pow(55,2)){
+					//console.log(Math.pow(55,2));
+					GameOver();
+					return;
+				}
+			});
+	//}
   //});
 	
   
-	
-  
-  // TODO: [Extra Credit] Determine if the snake has run into an obstacle
   
   //Distance formula: d^2 = (x1-x2)^2 + (y1-y2)^2
   //d^2 <=> (r1+r2)^2
@@ -154,6 +179,8 @@ function update(elapsedTime) {
   //var arr = [{(xpos:0,ypos:5,radius:3)}]
   if(time%2==0)
   {
+	  
+	 if(gameOver){return;}
 	  if(input.up||input.down||input.left||input.right){
 		  var snakeHead = snake[0];
 		  var last = [];
@@ -161,6 +188,10 @@ function update(elapsedTime) {
 		  last.push(snakeHead[1]);
 		  lastSnakePosition.push(last);
 	  }
+	  if(lastSnakePosition.length > 100){
+		  lastSnakePosition.shift();
+	  }
+	  //console.log(lastSnakePosition.length);
 	  //lastSnakePosition[0] = snakeHead;
 	  //lastSnakePositionX=snakeHead[0];
 	  //lastSnakePositionY=snakeHead[1];
@@ -169,6 +200,15 @@ function update(elapsedTime) {
   }
 }
 
+function GameOver(){
+	input.right = true;
+	input.up = false;
+	input.left = false;
+	input.down = false;
+	gameOver = true;
+	snake = [];
+	appleLocations = [];
+}
 /**
   * @function render
   * Renders the current game state into a back buffer.
@@ -176,21 +216,35 @@ function update(elapsedTime) {
   * the number of milliseconds passed since the last frame.
   */
 function render(elapsedTime) {
+	if(gameOver){
+		backCtx.fillStyle = "black";
+		backCtx.font = "100px Arial";
+		backCtx.fillText("GAME OVER",100,200);
+		backCtx.font = "50px Arial";
+		backCtx.fillText("Press Space to restart",140,300);
+		return;
+	}
+	// TODO: Draw the game objects into the backBuffer
 	backCtx.clearRect(0, 0, backBuffer.width, backBuffer.height);
-
+	
+	obstacleLocations.forEach(function(item,index,array){
+		backCtx.fillStyle = "green";
+		backCtx.arc(item[0],item[1],50,2*Math.PI,false);
+		backCtx.fill();
+		//backCtx.fillRect(item[0],item[1],100,100);
+	});
+	
 	appleLocations.forEach(function(item,index,array){
 	  backCtx.fillStyle = "blue";
 	  backCtx.fillRect(parseInt(item[0]),parseInt(item[1]),5,5);
 	});
-	// TODO: Draw the game objects into the backBuffer
+	
 	backCtx.fillStyle = "#FF0000";
 	for(i=0;i<snake.length;i++){
 		backCtx.fillRect(snake[i][0],snake[i][1],10,10);
 	}
-	//snake.forEach(function(snakeSegment,index,array){
-	//	backCtx.fillRect(snakeSegment[0],snakeSegment[1],10,10);
 	
-	//});
+	
 }
 
 window.onkeydown = function(event)
@@ -230,12 +284,10 @@ window.onkeydown = function(event)
 			break;
 		 case 32:
 			gameOver = false;
-			snake = [];
 			firstHead = [];
 			firstHead.push(200);
 			firstHead.push(200);
 			snake.push(firstHead);
-			appleLocations=[];
 			break;
 	}
 }
