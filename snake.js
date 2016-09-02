@@ -11,14 +11,15 @@ var appleLocations = [];
 var time = 625;
 var snake = [];
 var firstHead = [];
-firstHead.push(0);
-firstHead.push(0);
+firstHead.push(200);
+firstHead.push(200);
 snake.push(firstHead);
 var lastSnakePosition = [];
 lastSnakePosition.push(firstHead);
 var lastSnakePositionX= 0;
 var lastSnakePositionY = 0;
 var applesEaten = 0;
+var gameOver = false;
 
 var input = {
 	up:false,
@@ -43,7 +44,9 @@ function loop(newTime) {
   frontCtx.drawImage(backBuffer, 0, 0);
 
   // Run the next loop
-  window.requestAnimationFrame(loop);
+  
+	window.requestAnimationFrame(loop);
+  
 }
 //var intervalId = setInterval(loop,speed);
 
@@ -58,64 +61,76 @@ function loop(newTime) {
  */
 function update(elapsedTime) {
 	//multiply snake speed by elapsedtime to have same speed across refresh rates
-	// TODO: Spawn an apple periodically
+	
+	
+	if(gameOver)
+	{
+		return;
+	}
 	var snakeSpeed = speed * elapsedTime;
 	
-	
-	if(time%50== 0){
+	time+=1;
+	// TODO: Spawn an apple periodically
+	if(time%100== 0){
+		
 		var height = Math.floor((Math.random() * backBuffer.height) + 1);
 		var width = Math.floor((Math.random() * backBuffer.width) + 1);
 		appleLocations.push([height,width]);
 	}
-	time+=1;
 	
-  
-  // TODO: Grow the snake periodically
-	
-	
-  // TODO: Move the snake
-  //snake.forEach(function(snakeSegment,index,array){
-	  if(input.up||input.down||input.left||input.right){
-	for(i=0;i<snake.length;i++){
-		var snakeSegment = snake[i];
-		if(i==0){
-			if(input.up)snakeSegment[1]-=snakeSpeed;
-			if(input.down)snakeSegment[1]+=snakeSpeed;
-			if(input.left)snakeSegment[0]-=snakeSpeed;
-			if(input.right)snakeSegment[0]+=snakeSpeed;
-		}
-		else
-		{
-			snake[i] = lastSnakePosition[lastSnakePosition.length-i];
-			console.log(lastSnakePosition[lastSnakePosition.length-i][0] + " " + lastSnakePosition[lastSnakePosition.length-i][1])
-			console.log(i);
-		}
-		// TODO: Determine if the snake has eaten an apple
-		appleLocations.forEach(function(item,index,array){
-		var d2 = Math.pow(parseInt(item[0])-snakeSegment[0],2) + Math.pow(parseInt(item[1])-snakeSegment[1],2);
-		if(d2<=Math.pow(10+5,2))
-		{
-			addSnakeSegment = [];
-			addSnakeSegment.push(parseInt(lastSnakePositionX));
-			addSnakeSegment.push(parseInt(lastSnakePositionY));
-			snake.push(addSnakeSegment);
-			appleLocations.splice(index,1);
-			console.log(lastSnakePosition[0][0] + " " + lastSnakePosition[0][1]);
-			console.log(snakeSegment[0] + " " + snakeSegment[1]);
-			console.log(snake.length);
-			console.log(lastSnakePosition.length);
+	if(input.up||input.down||input.left||input.right){
+		for(i=0;i<snake.length;i++){
+			var snakeSegment = snake[i];
+			// TODO: Move the snake
+			if(i==0){
+				if(input.up)snakeSegment[1]-=snakeSpeed;
+				if(input.down)snakeSegment[1]+=snakeSpeed;
+				if(input.left)snakeSegment[0]-=snakeSpeed;
+				if(input.right)snakeSegment[0]+=snakeSpeed;
+			}
+			 // TODO: Grow the snake periodically
+			else
+			{
+				snake[i] = lastSnakePosition[lastSnakePosition.length-i];
+				console.log(lastSnakePosition[lastSnakePosition.length-i][0] + " " + lastSnakePosition[lastSnakePosition.length-i][1])
+				console.log(i);
+			}
+			// TODO: Determine if the snake has eaten an apple
+			appleLocations.forEach(function(item,index,array){
+				var d2 = Math.pow(parseInt(item[0])-snakeSegment[0],2) + Math.pow(parseInt(item[1])-snakeSegment[1],2);
+				if(d2<=Math.pow(10+5,2))
+				{
+					addSnakeSegment = [];
+					addSnakeSegment.push(parseInt(lastSnakePositionX));
+					addSnakeSegment.push(parseInt(lastSnakePositionY));
+					snake.push(addSnakeSegment);
+					appleLocations.splice(index,1);
+					console.log(lastSnakePosition[0][0] + " " + lastSnakePosition[0][1]);
+					console.log(snakeSegment[0] + " " + snakeSegment[1]);
+					console.log(snake.length);
+					console.log(lastSnakePosition.length);
+				}
+			});
 			
-			
+			// TODO: Determine if the snake has moved out-of-bounds (offscreen)
+			if(snake[0][0] > backBuffer.width-12 || snake[0][0] < 2 || snake[0][1] > backBuffer.height-12 || snake[0][1] < 2){
+				gameOver = true;
+			}
+			// TODO: Determine if the snake has eaten its tail
+			if(i<5){continue;}
+			var d2 = Math.pow(snake[0][0]-snake[i][0],2)+ Math.pow(snake[0][1]-snake[i][1],2);
+			if(d2<=Math.pow(15,2))
+			{
+				gameOver = true;
+			}
+				
 		}
-		});
 	}
-	  }
   //});
 	
-  // TODO: Determine if the snake has moved out-of-bounds (offscreen)
   
 	
-  // TODO: Determine if the snake has eaten its tail
+  
   // TODO: [Extra Credit] Determine if the snake has run into an obstacle
   
   //Distance formula: d^2 = (x1-x2)^2 + (y1-y2)^2
@@ -186,44 +201,45 @@ window.onkeydown = function(event)
 		 case 38:
 		 case 87:
 			input.up = true;
+			input.left = false;
+			input.down = false;
+			input.right = false;
 			break;
 		 case 37:
 		 case 65:
 			input.left = true;
+			input.up = false;
+			
+			input.down = false;
+			input.right = false;
 			break;
 		 case 40:
 		 case 83:
 			input.down = true;
+			input.up = false;
+			input.left = false;
+			input.right = false;
 			break;
 		 case 39:
 		 case 68:
 			input.right = true;
-			break;
-	}
-}
-window.onkeyup = function(event)
-{
-	event.preventDefault();
-	switch(event.keyCode)
-	{
-		 case 38:
-		 case 87:
 			input.up = false;
-			break;
-		 case 37:
-		 case 65:
 			input.left = false;
-			break;
-		 case 40:
-		 case 83:
 			input.down = false;
+			
 			break;
-		 case 39:
-		 case 68:
-			input.right = false;
+		 case 32:
+			gameOver = false;
+			snake = [];
+			firstHead = [];
+			firstHead.push(200);
+			firstHead.push(200);
+			snake.push(firstHead);
+			appleLocations=[];
 			break;
 	}
 }
+
 
 /* Launch the game */
 window.requestAnimationFrame(loop);
