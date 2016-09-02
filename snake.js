@@ -45,8 +45,9 @@ function loop(newTime) {
   oldTime = newTime;
   update(elapsedTime);
   render(elapsedTime);
-
+  
   frontCtx.clearRect(0,0,frontBuffer.width,frontBuffer.height);
+  
   // Flip the back buffer
   frontCtx.drawImage(backBuffer, 0, 0);
 
@@ -75,7 +76,7 @@ function update(elapsedTime) {
 		return;
 	}
 	var snakeSpeed = speed * elapsedTime;
-	
+	console.log(elapsedTime);
 	time+=1;
 	// TODO: Spawn an apple periodically
 	if(time%100== 0){
@@ -85,7 +86,7 @@ function update(elapsedTime) {
 		appleLocations.push([height,width]);
 	}
 	
-	//if(input.up||input.down||input.left||input.right){
+	if(input.up||input.down||input.left||input.right){
 		for(i=0;i<snake.length;i++){
 			
 			if(gameOver){continue;}
@@ -153,7 +154,7 @@ function update(elapsedTime) {
 					return;
 				}
 			});
-	//}
+	}
   //});
 	
   
@@ -226,6 +227,12 @@ function render(elapsedTime) {
 	}
 	// TODO: Draw the game objects into the backBuffer
 	backCtx.clearRect(0, 0, backBuffer.width, backBuffer.height);
+	
+	 
+	// TODO: Show current score to user at all times
+	backCtx.fillStyle = "black";
+		backCtx.font = "25px Arial";
+		backCtx.fillText(snake.length-1,backBuffer.width - 35,25);
 	
 	obstacleLocations.forEach(function(item,index,array){
 		backCtx.fillStyle = "green";
