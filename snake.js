@@ -15,9 +15,10 @@ firstHead.push(0);
 firstHead.push(0);
 snake.push(firstHead);
 var lastSnakePosition = [];
-lastSnakePosition[0] =firstHead;
+lastSnakePosition.push(firstHead);
 var lastSnakePositionX= 0;
 var lastSnakePositionY = 0;
+var applesEaten = 0;
 
 var input = {
 	up:false,
@@ -73,28 +74,43 @@ function update(elapsedTime) {
 	
 	
   // TODO: Move the snake
-  snake.forEach(function(snakeSegment,index,array){
-	if(input.up)snakeSegment[1]-=snakeSpeed;
-	if(input.down)snakeSegment[1]+=snakeSpeed;
-	if(input.left)snakeSegment[0]-=snakeSpeed;
-	if(input.right)snakeSegment[0]+=snakeSpeed;
-	
-	// TODO: Determine if the snake has eaten an apple
-	appleLocations.forEach(function(item,index,array){
-	var d2 = Math.pow(parseInt(item[0])-snakeSegment[0],2) + Math.pow(parseInt(item[1])-snakeSegment[1],2);
-	if(d2<=Math.pow(10+5,2))
-	{
-		addSnakeSegment = [];
-		addSnakeSegment.push(parseInt(lastSnakePositionX));
-		addSnakeSegment.push(parseInt(lastSnakePositionY));
-		snake.push(addSnakeSegment);
-		appleLocations.splice(index,1);
-		console.log(lastSnakePosition[0][0] + " " + lastSnakePosition[0][1]);
-		console.log(snakeSegment[0] + " " + snakeSegment[1]);
-		
+  //snake.forEach(function(snakeSegment,index,array){
+	  if(input.up||input.down||input.left||input.right){
+	for(i=0;i<snake.length;i++){
+		var snakeSegment = snake[i];
+		if(i==0){
+			if(input.up)snakeSegment[1]-=snakeSpeed;
+			if(input.down)snakeSegment[1]+=snakeSpeed;
+			if(input.left)snakeSegment[0]-=snakeSpeed;
+			if(input.right)snakeSegment[0]+=snakeSpeed;
+		}
+		else
+		{
+			snake[i] = lastSnakePosition[lastSnakePosition.length-i];
+			console.log(lastSnakePosition[lastSnakePosition.length-i][0] + " " + lastSnakePosition[lastSnakePosition.length-i][1])
+			console.log(i);
+		}
+		// TODO: Determine if the snake has eaten an apple
+		appleLocations.forEach(function(item,index,array){
+		var d2 = Math.pow(parseInt(item[0])-snakeSegment[0],2) + Math.pow(parseInt(item[1])-snakeSegment[1],2);
+		if(d2<=Math.pow(10+5,2))
+		{
+			addSnakeSegment = [];
+			addSnakeSegment.push(parseInt(lastSnakePositionX));
+			addSnakeSegment.push(parseInt(lastSnakePositionY));
+			snake.push(addSnakeSegment);
+			appleLocations.splice(index,1);
+			console.log(lastSnakePosition[0][0] + " " + lastSnakePosition[0][1]);
+			console.log(snakeSegment[0] + " " + snakeSegment[1]);
+			console.log(snake.length);
+			console.log(lastSnakePosition.length);
+			
+			
+		}
+		});
 	}
-	});
-  });
+	  }
+  //});
 	
   // TODO: Determine if the snake has moved out-of-bounds (offscreen)
   
@@ -123,13 +139,18 @@ function update(elapsedTime) {
   //var arr = [{(xpos:0,ypos:5,radius:3)}]
   if(time%2==0)
   {
-	  var snakeHead = snake[0];
-	  
-	  lastSnakePosition[0] = snakeHead;
-	  lastSnakePositionX=snakeHead[0];
-	  lastSnakePositionY=snakeHead[1];
-	  console.log(lastSnakePosition[0][0]);
-	  console.log(lastSnakePosition[0][1]);
+	  if(input.up||input.down||input.left||input.right){
+		  var snakeHead = snake[0];
+		  var last = [];
+		  last.push(snakeHead[0]);
+		  last.push(snakeHead[1]);
+		  lastSnakePosition.push(last);
+	  }
+	  //lastSnakePosition[0] = snakeHead;
+	  //lastSnakePositionX=snakeHead[0];
+	  //lastSnakePositionY=snakeHead[1];
+	  //console.log(lastSnakePosition[0][0]);
+	  //console.log(lastSnakePosition[0][1]);
   }
 }
 
@@ -148,10 +169,13 @@ function render(elapsedTime) {
 	});
 	// TODO: Draw the game objects into the backBuffer
 	backCtx.fillStyle = "#FF0000";
-	snake.forEach(function(snakeSegment,index,array){
-		backCtx.fillRect(snakeSegment[0],snakeSegment[1],10,10);
+	for(i=0;i<snake.length;i++){
+		backCtx.fillRect(snake[i][0],snake[i][1],10,10);
+	}
+	//snake.forEach(function(snakeSegment,index,array){
+	//	backCtx.fillRect(snakeSegment[0],snakeSegment[1],10,10);
 	
-	});
+	//});
 }
 
 window.onkeydown = function(event)
