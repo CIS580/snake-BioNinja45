@@ -5,6 +5,7 @@ var backBuffer = document.createElement('canvas');
 backBuffer.width = frontBuffer.width;
 backBuffer.height = frontBuffer.height;
 var backCtx = backBuffer.getContext('2d');
+var newTime = performance.now();
 var oldTime = performance.now();
 var speed = 1/4;
 var appleLocations = [];
@@ -41,11 +42,17 @@ var input = {
  * @param{time} the current time as a DOMHighResTimeStamp
  */
 function loop(newTime) {
+	var t0 = performance.now();
+   
+    
   var elapsedTime = newTime - oldTime;
   oldTime = newTime;
   update(elapsedTime);
+  var t1 = performance.now();
+    console.log("update: " + (t1 - t0));
   render(elapsedTime);
-  
+  var t2 = performance.now();
+    console.log("Render: " + (t2 - t1));
   frontCtx.clearRect(0,0,frontBuffer.width,frontBuffer.height);
   
   // Flip the back buffer
@@ -53,10 +60,10 @@ function loop(newTime) {
 
   // Run the next loop
   
-	window.requestAnimationFrame(loop);
+	//window.requestAnimationFrame(loop);
   
 }
-//var intervalId = setInterval(loop,speed);
+var intervalId = setInterval(loop,60);
 
 
 /**
@@ -75,11 +82,10 @@ function update(elapsedTime) {
 	{
 		return;
 	}
-	var snakeSpeed = speed * elapsedTime;
-	console.log(elapsedTime);
+	var snakeSpeed = speed * 25;
 	time+=1;
 	// TODO: Spawn an apple periodically
-	if(time%100== 0){
+	if(time%10== 0){
 		
 		var height = Math.floor((Math.random() * backBuffer.height) + 1);
 		var width = Math.floor((Math.random() * backBuffer.width) + 1);
@@ -95,10 +101,10 @@ function update(elapsedTime) {
 			var snakeSegment = snake[i];
 			// TODO: Move the snake
 			if(i==0){
-				if(input.up)snakeSegment[1]-=snakeSpeed;
-				if(input.down)snakeSegment[1]+=snakeSpeed;
-				if(input.left)snakeSegment[0]-=snakeSpeed;
-				if(input.right)snakeSegment[0]+=snakeSpeed;
+				if(input.up && !input.down)snakeSegment[1]-=snakeSpeed;
+				if(input.down && !input.up)snakeSegment[1]+=snakeSpeed;
+				if(input.left && !input.right)snakeSegment[0]-=snakeSpeed;
+				if(input.right && !input.left)snakeSegment[0]+=snakeSpeed;
 			}
 			 // TODO: Grow the snake periodically
 			else
@@ -178,15 +184,13 @@ function update(elapsedTime) {
   //var arr = []
   //var arr = new Array();
   //var arr = [{(xpos:0,ypos:5,radius:3)}]
-  if(time%2==0)
-  {
-	  
-	 if(gameOver){return;}
+  
+	 
 	  if(input.up||input.down||input.left||input.right){
 		  var snakeHead = snake[0];
 		  var last = [];
-		  last.push(snakeHead[0]);
-		  last.push(snakeHead[1]);
+		  last.push(snake[0][0]);
+		  last.push(snake[0][1]);
 		  lastSnakePosition.push(last);
 	  }
 	  if(lastSnakePosition.length > 100){
@@ -198,7 +202,7 @@ function update(elapsedTime) {
 	  //lastSnakePositionY=snakeHead[1];
 	  //console.log(lastSnakePosition[0][0]);
 	  //console.log(lastSnakePosition[0][1]);
-  }
+  
 }
 
 function GameOver(){
@@ -223,6 +227,7 @@ function render(elapsedTime) {
 		backCtx.fillText("GAME OVER",100,200);
 		backCtx.font = "50px Arial";
 		backCtx.fillText("Press Space to restart",140,300);
+		clearInterval(intervalId)
 		return;
 	}
 	// TODO: Draw the game objects into the backBuffer
@@ -270,7 +275,6 @@ window.onkeydown = function(event)
 		 case 65:
 			input.left = true;
 			input.up = false;
-			
 			input.down = false;
 			input.right = false;
 			break;
@@ -295,10 +299,11 @@ window.onkeydown = function(event)
 			firstHead.push(200);
 			firstHead.push(200);
 			snake.push(firstHead);
+			intervalId = setInterval(loop,60);
 			break;
 	}
 }
 
 
 /* Launch the game */
-window.requestAnimationFrame(loop);
+//window.requestAnimationFrame(loop);
