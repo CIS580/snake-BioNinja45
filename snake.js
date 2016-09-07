@@ -161,7 +161,7 @@ function update(elapsedTime) {
 				}
 			});
 	}
-  //});
+  
 	
   
   
@@ -193,7 +193,7 @@ function update(elapsedTime) {
 		  last.push(snake[0][1]);
 		  lastSnakePosition.push(last);
 	  }
-	  if(lastSnakePosition.length > 100){
+	  if(lastSnakePosition.length > 500){
 		  lastSnakePosition.shift();
 	  }
 	  //console.log(lastSnakePosition.length);
